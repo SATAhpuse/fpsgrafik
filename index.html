@@ -1,71 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smooth FPS Graph</title>
-
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-    }
-
-    /* BOX lebih kecil */
-    .fps-box {
-      width: 720px;
-      height: 160px; /* diperkecil */
-      border-radius: 22px;
-      background: rgba(50, 0, 90, 0.75);
-      box-shadow: 0 0 35px rgba(170, 0, 255, 0.65);
-      position: relative;
-      overflow: hidden;
-      padding: 12px;
-    }
-
-    /* Text FPS */
-    .fps-text {
-      position: absolute;
-      top: 10px;
-      left: 18px;
-      font-size: 20px;
-      font-weight: bold;
-      color: white;
-      z-index: 10;
-    }
-
-    canvas {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RISZ FREE Tools - FPS Boongan</title>
 </head>
+<body style="background:#000; color:white; font-family:Arial; margin:0; padding:15px;">
 
-<body>
+<!-- FPS CARD -->
+<div style="background:#111; border-radius:24px; padding:20px; margin-bottom:20px; border:2px solid #b46cff;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <div style="color:#b46cff; font-size:20px; font-weight:bold;">⚡ FPS MONITOR</div>
+        <div style="background:#222; padding:8px 20px; border-radius:40px; border:2px solid #b46cff;">
+            <span style="font-size:24px; font-weight:bold;" id="fpsDisplay">61</span>
+            <small style="color:#b46cff;">FPS</small>
+        </div>
+    </div>
+    
+    <!-- CANVAS GRAFIK -->
+    <div style="width:100%; height:140px; background:#1a1a1a; border-radius:18px; padding:5px 0; border:2px solid #b46cff;">
+        <canvas id="fpsCanvas" width="400" height="130" style="width:100%; height:100%; display:block;"></canvas>
+    </div>
+    
+    <div style="text-align:center; margin-top:10px; color:#888; font-size:12px;">
+        <span style="color:#b46cff;">⏱️</span> realtime • boongan • stabil 60+
+    </div>
+</div>
 
-  <div class="fps-box">
-    <div class="fps-text">FPS: <span id="fpsValue">60</span></div>
-    <canvas id="fpsCanvas"></canvas>
-  </div>
+<!-- TOOLS -->
+<div>
+    <!-- AIM-RELATED -->
+    <div style="background:#111; padding:18px; border-radius:18px; margin-bottom:12px; border:2px solid #b46cff;">
+        <h3 style="color:#b46cff; margin:0 0 5px 0;">🎯 AIM-RELATED</h3>
+        <p style="color:#aaa; margin:0 0 12px 0; font-size:14px;">Untuk meningkatkan akurasi tembakan.</p>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#b46cff; font-weight:bold; font-size:16px;" id="status1">ON</span>
+            <div id="switch1" style="width:60px; height:30px; background:#b46cff; border-radius:34px; position:relative; cursor:pointer; box-shadow:0 0 15px #b46cff;" onclick="toggleTool(1)">
+                <div style="width:26px; height:26px; background:white; border-radius:50%; position:absolute; top:2px; left:32px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Touch Optimizer -->
+    <div style="background:#111; padding:18px; border-radius:18px; margin-bottom:12px; border:2px solid #333;">
+        <h3 style="color:#b46cff; margin:0 0 5px 0;">⚡ Touch Optimizer</h3>
+        <p style="color:#aaa; margin:0 0 12px 0; font-size:14px;">Mengoptimalkan respon sentuhan.</p>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:red; font-weight:bold; font-size:16px;" id="status2">OFF</span>
+            <div id="switch2" style="width:60px; height:30px; background:#333; border-radius:34px; position:relative; cursor:pointer;" onclick="toggleTool(2)">
+                <div style="width:26px; height:26px; background:white; border-radius:50%; position:absolute; top:2px; left:2px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FPS Booster -->
+    <div style="background:#111; padding:18px; border-radius:18px; margin-bottom:12px; border:2px solid #333;">
+        <h3 style="color:#b46cff; margin:0 0 5px 0;">🚀 FPS Booster</h3>
+        <p style="color:#aaa; margin:0 0 12px 0; font-size:14px;">Meningkatkan performa grafis.</p>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:red; font-weight:bold; font-size:16px;" id="status3">OFF</span>
+            <div id="switch3" style="width:60px; height:30px; background:#333; border-radius:34px; position:relative; cursor:pointer;" onclick="toggleTool(3)">
+                <div style="width:26px; height:26px; background:white; border-radius:50%; position:absolute; top:2px; left:2px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
-  <script>
-    const canvas = document.getElementById("fpsCanvas");
-    const ctx = canvas.getContext("2d");
+<script>
+// === FPS BOONGAN ===
+const canvas = document.getElementById('fpsCanvas');
+const ctx = canvas.getContext('2d');
+const fpsDisplay = document.getElementById('fpsDisplay');
 
-    canvas.width = 720;
-    canvas.height = 160;
+// Atur ukuran canvas
+canvas.width = 400;
+canvas.height = 130;
 
-    let fpsData = [];
-    const maxPoints = 60;
+// Data FPS palsu
+let fpsHistory = [];
+let currentFPS = 61; // mulai dari 61
 
-    /* FPS Random Smooth */
-    let currentFPS = 60;
+// Isi awal dengan data random
+for (let i = 0; i < 50; i++) {
+    fpsHistory.push(55 + Math.random() * 15);
+}
 
+// Fungsi generate FPS
+function generateFakeFPS() {
+    // Naik turun random
+    let change = (Math.random() - 0.5) * 4;
+    let newFPS = currentFPS + change;
+    
+    // Batasi range 50-75
+    if (newFPS < 50) newFPS = 55;
+    if (newFPS > 75) newFPS = 70;
+    
+    currentFPS = Math.round(newFPS);
+    fpsDisplay.innerText = currentFPS;
+    
+    // Tambah ke history
+    fpsHistory.push(currentFPS);
+    if (fpsHistory.length > 50) {
+        fpsHistory.shift();
+    }
+    
+    // Gambar grafik
+    drawGraph();
+}
+
+// Gambar grafik
+function drawGraph() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Background
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Garis FPS
+    ctx.beginPath();
+    ctx.strokeStyle = '#b46cff';
+    ctx.lineWidth = 3;
+    
+    for (let i = 0; i < fpsHistory.length; i++) {
+        let x = (i / 49) * canvas.width;
+        let y = canvas.height - ((fpsHistory[i] - 40) / 40) * canvas.height;
+        
+        if (y < 5) y = 5;
+        if (y > canvas.height - 5) y = canvas.height - 5;
+        
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    
+    ctx.stroke();
+    
+    // Titik-titik
+    ctx.fillStyle = 'white';
+    for (let i = 0; i < fpsHistory.length; i += 5) {
+        let x = (i / 49) * canvas.width;
+        let y = canvas.height - ((fpsHistory[i] - 40) / 40) * canvas.height;
+        
+        if (y < 5) y = 5;
+        if (y > canvas.height - 5) y = canvas.height - 5;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.strokeStyle = '#b46cff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+    
+    // Tulisan FPS di grafik
+    ctx.fillStyle = '#b46cff';
+    ctx.font = 'bold 12px Arial';
+    ctx.fillText('FPS: ' + currentFPS, 10, 20);
+}
+
+// Update FPS tiap 200ms
+setInterval(generateFakeFPS, 200);
+
+// === FUNGSI TOGGLE ===
+function toggleTool(id) {
+    const switchEl = document.getElementById(`switch${id}`);
+    const statusEl = document.getElementById(`status${id}`);
+    const slider = switchEl.children[0];
+    
+    if (statusEl.innerText === 'OFF') {
+        // ON
+        statusEl.innerText = 'ON';
+        statusEl.style.color = '#b46cff';
+        switchEl.style.background = '#b46cff';
+        switchEl.style.boxShadow = '0 0 15px #b46cff';
+        slider.style.left = '32px';
+    } else {
+        // OFF
+        statusEl.innerText = 'OFF';
+        statusEl.style.color = 'red';
+        switchEl.style.background = '#333';
+        switchEl.style.boxShadow = 'none';
+        slider.style.left = '2px';
+    }
+}
+
+// Set default: tool 1 ON
+window.onload = function() {
+    document.getElementById('status1').innerText = 'ON';
+    document.getElementById('status1').style.color = '#b46cff';
+    document.getElementById('switch1').style.background = '#b46cff';
+    document.getElementById('switch1').style.boxShadow = '0 0 15px #b46cff';
+    document.getElementById('switch1').children[0].style.left = '32px';
+    
+    drawGraph();
+};
+</script>
+
+<!-- CATATAN: INI MURAHAN, TANPA CSS, PAKE STYLE INLINE DOANG -->
+<div style="text-align:center; margin-top:20px; color:#555; font-size:11px;">
+    ⚡ RISZ FREE Tools • FPS Boongan • Tanpa CSS
+</div>
+
+</body>
+</html>
     function getFPS() {
       // biar smooth, fps berubah pelan pelan
       let change = (Math.random() - 0.5) * 8;
